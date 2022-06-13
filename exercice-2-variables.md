@@ -65,6 +65,7 @@ output "public_ip" {
 * Appliquer vos modifications avec la commande `terraform init && terraform apply`
 * Utiliser l'adresse IP retourné pour vérifier si votre déploiement fonctionne toujours
 * Vérifier alors l'applications de vos variables est correcte dans la console Web AWS
+* Essayer de vous connecter sur votre instance avec la clé ssh privé que vous avez généré à l'étape de configuration
 
 ## Suppression de la ressource
 * Les exercices étant terminer, nous allon supprimer les ressources avec la commande 
