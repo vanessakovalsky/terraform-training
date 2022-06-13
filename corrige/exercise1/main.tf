@@ -1,14 +1,13 @@
 provider "aws" {
-    region = var.AWS_REGION
-    access_key = var.AWS_ACCESS_KEY
-    secret_key = var.AWS_SECRET_KEY 
+    region = "us-east-2"
+    access_key = "AKIAZM5QZOLPOXW6YF7N"
+    secret_key = "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" 
 }
 
 resource "aws_instance" "my_ec2_instance"{
-    ami = var.AWS_AMI
+    ami = "ami-07c1207a9d40bc3bd"
     instance_type = "t2.micro"
     vpc_security_group_ids = [aws_security_group.instance_sg.id]
-    key_name = aws_key_pair.maclessh.key_name
     user_data = <<-EOF
 		#!/bin/bash
         sudo apt-get update
@@ -39,21 +38,4 @@ resource "aws_security_group" "instance_sg" {
         protocol    = "tcp"
         cidr_blocks = ["0.0.0.0/0"]
     }
-
-    ingress {
-        from_port   = 22
-        to_port     = 22
-        protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-}
-
-
-resource "aws_key_pair" "maclessh" {
-    key_name = "key-vanessa"
-    public_key = var.SSH_PUB_KEY
-}
-
-output "adresse_ip_instance" {
-  value = aws_instance.my_ec2_instance.public_ip
 }
