@@ -32,7 +32,7 @@ mkdir -p modules/aws-s3-static-website-bucket
 
 * Créer le fichier LICENCE et choisir votre licence pour le module, par exemple [Apache](https://www.apache.org/licenses/LICENSE-2.0) ou [GPL](https://www.gnu.org/licenses/gpl-3.0.html)
 * Créer ensuite un fichier README.md qui contient la documentation suivante (que vous pouvez adapter si vous le souhaiter)
-```
+````
 # AWS S3 static website bucket
 
 Ce module provisionne un bucket S3 configuré pour l'hébergement d'un site web statique.
@@ -49,7 +49,7 @@ module "<module name>" {
 }
 ```
 Lorsque votre bucket est créé, envoyer un fichier `index.html` et un fichier `error.html` dans votre bucket. 
-```
+````
 
 * Nous allons maintenant créer la configuration du bucket
 * Pour cela nous commençons dans le fichier main.tf ui va contenir une ressource aws_s3_bucket.
@@ -114,6 +114,7 @@ output "name" {
 * L'ensemble des éléments de notre modules est prêt, il ne reste plus qu'à l'utiliser
 
 ## Utiliser notre module
+
 * Revenir au `main.tf` du module racine (celui qui contient le provider et la création de notre instance ec2)
 * La symtaxe d'utilisation d'un module est la suivante : 
 ```
