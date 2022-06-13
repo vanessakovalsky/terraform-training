@@ -95,6 +95,8 @@ resource "aws_instance" "my_ec2_instance" {
 * Pour appliquer notre modification, utiliser la commande : `terraform init && terraform apply`
 * Puis retourner vérifier dans la console web l'AMI utilisé par votre instance
 
+* Ajouter une source de données qui va chercher le type d'instance le plus petit qui est compatible avec l'image la plus récente et qui correspond à l'architecture x86_64
+
 ## Suppression de la ressource
 * Les exercices étant terminer, nous allon supprimer les ressources avec la commande 
 ```
