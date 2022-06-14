@@ -179,7 +179,7 @@ website_endpoint = devopssec-terraform.s3-website-us-east-1.amazonaws.com
 </body>
 </html>
 ```
-* Ainsi qu'un fichier `erreur.html` avec le contenu suivant
+* Ainsi qu'un fichier `error.html` avec le contenu suivant
 ```
 <html>
 <body>
@@ -190,7 +190,7 @@ website_endpoint = devopssec-terraform.s3-website-us-east-1.amazonaws.com
 * Ensuite nous allons envoyer ces deux fichiers sur votre bucket en utilisant la variable de sortie de terraform via AWS cli :
 ```
 aws s3 cp index.html s3://$(terraform output website_bucket_name)/
-aws s3 cp erreur.html s3://$(terraform output website_bucket_name)/
+aws s3 cp error.html s3://$(terraform output website_bucket_name)/
 ```
 * Cela devrait afficher un message de type :
 ```
