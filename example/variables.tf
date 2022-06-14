@@ -1,8 +1,11 @@
-variable "ami-name" {
+variable "SSH_PUB_KEY" {
     type = string
-    #default = "ami-07c1207a9d40bc3bd"
 }
 
-variable "instance-type" {
+variable "ACCESS_KEY" {
+    type = string
+}
+
+variable "SECRET_KEY" {
     type = string
 }

@@ -1,8 +1,4 @@
-data "aws_ami" "ami_ubuntu"{
-    owners = ["099720109477"]
-    most_recent = true
-    filter {
-      name = "architecture"
-      values = ["x86_64","i386"]
-    }
+module  "monmodule" {
+  source = "./modules/monmodule"
+  SSH_PUB_KEY = var.SSH_PUB_KEY
 }

@@ -1,7 +1,4 @@
-output "public_ip" {
-    value = aws_instance.demo_instanceec2.public_ip
-}
-
-output "public_dns" {
-  value = aws_instance.demo_instanceec2.public_dns
+output "website_ip" {
+    description = "Adresse IP du serveur web"
+    value = module.monmodule.adresse_ip_instance
 }
