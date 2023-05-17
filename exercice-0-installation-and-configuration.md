@@ -53,7 +53,7 @@ Global options (use these before the subcommand, if any):
 
 ## Génération de clé SSH
 
-* Afin de déployer des instances sur AWS et de se connecter dessus nous avons besoin d'une clé SSH
+* Afin de déployer des ressources et de se connecter dessus nous avons besoin d'une clé SSH
 
 * Sous Linux / MacOs :
 ```
