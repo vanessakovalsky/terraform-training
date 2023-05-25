@@ -60,4 +60,4 @@ Global options (use these before the subcommand, if any):
 ssh-keygen -t rsa
 ```
 
-* Sous windows, voir ce lien : https://www.uphf.fr/wiki/doku.php/recherche/developpement/clefwindows?do=export_pdf 
+* Sous windows, voir ce lien : https://www.uphf.fr/wiki/doku.php/outils/recherche/gitlab/clefwindows?s[]=ssh 
