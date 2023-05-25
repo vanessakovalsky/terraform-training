@@ -15,7 +15,7 @@ Cet exercice a pour objectifs :
 ```
 variable "name" {
   type        = string
-  description = "(Required) Name of the deployment"
+  description = "Name of the deployment"
 }
 ```
 

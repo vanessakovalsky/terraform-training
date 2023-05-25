@@ -261,10 +261,10 @@ terraform init && terraform apply
 @TOCOPY
 ```
 * Vérifier maintenant via kubectl que votre deploiement et votre service sont bien créé
-* Puis lancer minikube tunnel et accéder à votre page web sur l'adresse fournit par minikube
+* Puis lancer minikube tunnel et accéder à votre page web sur l'adresse fournit par minikube (si besoin pour recuperer l'URL : `minikube service terraform-example-svc -n vanessakovalsky --url` )
 
 ## Suppression de la ressource
-* Les exercices étant terminer, nous allon supprimer les ressources avec la commande 
+* Les exercices étant terminer, nous allons supprimer les ressources avec la commande 
 ```
 terraform destroy
 ```
