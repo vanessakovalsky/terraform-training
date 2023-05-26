@@ -3,6 +3,7 @@ minikube tunnel &> /dev/null &
 
 # Create only namespace
 terraform apply -target=kubernetes_namespace.vanessakovalsky -var-file=k8s.tfvars
+# equivalent à : kubect create namespace toto
 
 # Create configmap
 kubectl create configmap myconfig --from-literal=lang=fr -n toto
