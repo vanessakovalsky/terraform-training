@@ -53,7 +53,7 @@ Lorsque site est déployé vous pouvez vous connecter dessus et lancer l'install
     * Secret pour le mot de passe mysql root, le mot de passe mysql pour Wordpress, le mot de passe pour l'utilisateur de Wordpress
     * Configmap pour les utilisateurs de db et de wordpress
 * Il n'est pas nécessaire de définir un provider dans un module. En effet, le module étant importé dans un autre élément de configuration, le provider est hérité de la configuration parente.
-* Créer un fichier `variables.tf` pour définir la variable de l'app et du namespace à utiliser dans le cluster
+* Créer un fichier `variables.tf` pour définir la variable app_name et namespace à utiliser dans les ressources K8s
 * Enfin afin de récupérer l'adresse du site, créer un fichier output qui récupère l'adresse IP du node depuis le service et le port exposé
 * L'ensemble des éléments de notre modules est prêt, il ne reste plus qu'à l'utiliser
 
@@ -77,7 +77,7 @@ module "<NAME>" {
 module "k8s_wordpress" {
     source = "./modules/k8s-wordpress"
     app_name = "devopssec-terraform"
-    namepsace = "mynamespace
+    namespace = "mynamespace
 }
 ```
 * Exécutons le code pour voir si tout est ok :
