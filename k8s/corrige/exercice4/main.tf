@@ -7,7 +7,6 @@ terraform {
   }
 }
 
-
 module "k8s_wordpress" {
     source = "./modules/k8s-wordpress"
     app_name = "devopssec-terraform"
