@@ -2,42 +2,40 @@
 
 ## Prerequisites
 
-* In order to be able to deploy on K8s, we use Minikube
-* Minikube must therefore be installed and a k8s cluster started
+* In order to be able to deploy on Azure, you need an azure subscription
+* You also need to [install Azure cli](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) and configure connexion with command `az login`
 
 ## Configure provider
 
-* Let's start by configuring the provider you want to use. Create a file named provider.tf. Then put the following code (adapting with your access information):
+* Let's start by configuring the provider you want to use. Create a file named azure.tf. Then put the following code (adapting with your access information):
 ```
 terraform {
-  required_providers {
-    kubernetes = {
-      source = "hashicorp/kubernetes"
-      version = "2.17.0"
+    required_providers {
+        azurerm = {
+            source = "hashicorp/azurerm"
+            version = "=3.0.1"
+        }
     }
-  }
 }
 
-provider "kubernetes" {
-  config_path    = "~/.kube/config"
-  config_context = "minikube"
+provider "azurerm" {
+    features  {}
 }
 
 ```
 * We indicate to Terrform different information:
-  - the provider with the label `kubernetes`
-  - the path to the configuration file
-  - the context to be used
+  - the provider with the label `azurerm`
+  - block features is mandatory for azure provider
 
 ## Adding resource
 
 * Each provider offers different types of resources.
-* Let's start with a simple resource, a namespace
-* Add the following code to your k8s.tf file:
+* Let's start with a simple resource, a resource groupe
+* Add the following code to your azure.tf file:
 ```
-resource "kubernetes_namespace" "vanessakovalsky" {
-metadata {        name = "vanessakovalsky"
-    }
+resource "azurerm_resource_group" "demo" {
+    name = "demo-resources"
+    location = "West Europe"
 }
 ```
 * The general syntax of a Terraform resource is as follow:
@@ -46,11 +44,10 @@ resource "<PROVIDER>_<TYPE>" "<NAME>" {
     [CONFIG …]
 }
 ```
-* PROVIDER: this is the name of a provider (here the `kubernetes` provider).
+* PROVIDER: this is the name of a provider (here the `azurerm` provider).
 * TYPE: this is the type of resources to create in this provider (here it is a namespace)
-* NAME: this is an identifier that you can use in Terraform code to refer to this resource (here `vanessakovalsky`)
+* NAME: this is an identifier that you can use in Terraform code to refer to this resource (here `demo`)
 * CONFIG: consists of one or more arguments specific to this resource, in our case:
-* metadata: these are the metadata of our K8s resource
 
 ## Launching the deployment
 * To start our deployment, we open a terminal and put in the folder containing our main.tf file
@@ -247,10 +244,7 @@ terraform init && terraform apply
 @TOCOPY
 ```
 * Check now via kubectl that your deployment and your service are well created
-* Then launch minikube tunnel and access your web page on the address provided by minikube 
-  * On linux use: `minikube service terraform-example-svc -n vanessakovalsky --url` 
-  * On windows use : `kubectl port-forward service/terraform-example-svc -n yournamespace 54200:8080 and then you can access to your nginx on 127.0.0.1:54200` 
-  * /!\ In both case let this process and minikube tunnel run in two windows for accessing to your app 
+* Then launch minikube tunnel and access your web page on the address provided by minikube (if necessary to retrieve the URL: `minikube service terraform-example-svc -n vanessakovalsky --url` )
 
 ## Delete resource
 * The exercises being finished, we are going to delete the resources with the command

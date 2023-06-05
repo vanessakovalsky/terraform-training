@@ -1,13 +1,12 @@
-# Exercise 1 - Configure a provider and create a first resource
+# Exercice 1 - Configurer un provider et créer une première ressource
 
-## Prerequisites
+## Pré-requis
+* Afin de pouvoir déployer sur K8s, nous utilisons Minikube
+* Minikube doit donc être installé et un cluster k8s démarré
 
-* In order to be able to deploy on K8s, we use Minikube
-* Minikube must therefore be installed and a k8s cluster started
+## Configuration du provider
 
-## Configure provider
-
-* Let's start by configuring the provider you want to use. Create a file named provider.tf. Then put the following code (adapting with your access information):
+* Commençons par configurer le provider (fournisseur) que vous souhaitez utiliser. Créer un fichier nommé provider.tf. Ensuite, mettre le code suivant (en adaptant avec vos informations d'accès):
 ```
 terraform {
   required_providers {
@@ -24,41 +23,45 @@ provider "kubernetes" {
 }
 
 ```
-* We indicate to Terrform different information:
-  - the provider with the label `kubernetes`
-  - the path to the configuration file
-  - the context to be used
+* Nous indiquons à Terrform différente information :
+    - le provider avec le label "kubernetes'
+    - le chemin vers le fichier de configuration
+    - le contexte à utilisé
 
-## Adding resource
 
-* Each provider offers different types of resources.
-* Let's start with a simple resource, a namespace
-* Add the following code to your k8s.tf file:
+## Ajout de la ressource
+
+* Chaque fournisseur propose différents types de ressources. 
+* Commençons par une ressource simple, un namespace
+* Ajouter le code suivant à votre fichier k8s.tf :
 ```
 resource "kubernetes_namespace" "vanessakovalsky" {
-metadata {        name = "vanessakovalsky"
+    metadata {
+        name = "vanessakovalsky"
     }
 }
 ```
-* The general syntax of a Terraform resource is as follow:
+* La syntaxe générale d'une ressource Terraform est la suivante :
 ```
-resource "<PROVIDER>_<TYPE>" "<NAME>" {
+resource "<FOURNISSEUR>_<TYPE>" "<NOM>" {
     [CONFIG …]
 }
 ```
-* PROVIDER: this is the name of a provider (here the `kubernetes` provider).
-* TYPE: this is the type of resources to create in this provider (here it is a namespace)
-* NAME: this is an identifier that you can use in Terraform code to refer to this resource (here `vanessakovalsky`)
-* CONFIG: consists of one or more arguments specific to this resource, in our case:
-* metadata: these are the metadata of our K8s resource
+    * FOURNISSEUR : c'est le nom d'un fournisseur (ici le provider "kuberenetes").
+    * TYPE : c'est le type de ressources à créer dans ce fournisseur (ici c'est un namespace)
+    * NOM : c'est un identifiant que vous pouvez utiliser dans le code Terraform pour faire référence à cette ressource (ici "vanessakovalsky")
+    * CONFIG : se compose de un ou plusieurs arguments spécifiques à cette ressource, dans notre cas :
+        * metadata : ce sont les méta données de notre ressources K8s
 
-## Launching the deployment
-* To start our deployment, we open a terminal and put in the folder containing our main.tf file
-* Then run the command:
+
+## Lancement du déploiement
+
+* Pour lancer notre déploiement, nous ouvrons un terminal et nous mettons dans le dossier contenant notre fichier main.tf
+* Puis exécuter la commande :
 ```
 terraform init
 ```
-* You get a result similar to:
+* Vous obtenez un résultat ressemblant à :
 ```
 Initializing the backend...
 
@@ -82,12 +85,13 @@ If you ever set or change modules or backend configuration for Terraform,
 rerun this command to reinitialize your working directory. If you forget, other
 commands will detect it and remind you to do so if necessary.
 ```
-* A new hidden .terraform file then appeared in your folder
-* Now tell terraform to create the execution plan, which determines the actions needed to reach the desired state in your main.tf file.* For this execute the command
+* Un nouveau fichier caché .terraform est alors apparu dans votre dossier
+* Demander maintenant à terraform de créer le plan d'éxecution, qui détermine les actions nécessaires pour atteindre l'état souhaité dans votre fichier main.tf . 
+* Pour cela exécuter la commande
 ```
 terraform plan
 ```
-* Which gives a result similar to:
+* Qui donne un résultat similaire à :
 ```
 Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
   + create
@@ -98,7 +102,8 @@ Terraform will perform the following actions:
   + resource "kubernetes_namespace" "vanessakovalsky" {
       + id = (known after apply)
 
-+ metadata {          + generation       = (known after apply)
+      + metadata {
+          + generation       = (known after apply)
           + name             = "vanessakovalsky"
           + resource_version = (known after apply)
           + uid              = (known after apply)
@@ -107,16 +112,16 @@ Terraform will perform the following actions:
 
 Plan: 1 to add, 0 to change, 0 to destroy.
 ```
-* You will then see different information:
-  * resources added with the symbol +
-  * resources deleted with the symbol -
-  * resources modified with the symbol ~
-* Here we have only an addition
-* Finally, ask terraform to execute the plan using the command:
+* Vous voyez alors différentes informations : 
+    * des ressources ajoutées avec le symbole + 
+    * des ressources supprimées avec le symbole - 
+    * des ressources modifiées avec le symbole ~
+* Ici nous avons seulement un ajout
+* Enfin, demander à terraform d'éxecuter le plan en utilisant la commande :
 ```
 terraform apply
 ```
-* Which gives a result similar to (remember to type yes to approve the application):
+* Qui donne un résultat similaire à (pensez à taper yes pour approuver l'application) :
 ```
 Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
   + create
@@ -127,7 +132,8 @@ Terraform will perform the following actions:
   + resource "kubernetes_namespace" "vanessakovalsky" {
       + id = (known after apply)
 
-+ metadata {          + generation       = (known after apply)
+      + metadata {
+          + generation       = (known after apply)
           + name             = "vanessakovalsky"
           + resource_version = (known after apply)
           + uid              = (known after apply)
@@ -153,25 +159,30 @@ Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
 NAME              STATUS   AGE
 default           Active   6d4h
 kube-node-lease   Active   6d4h
-be public Active 6d4hbe system Active 6d4hvanessakovalsky   Active   22s
+kube-public       Active   6d4h
+kube-system       Active   6d4h
+vanessakovalsky   Active   22s
 ```
 
-## Deployment verification
-* You can use kubectl to verify that your namespace is created
+## Vérification du déploiement 
+
+* Vous pouvez ouvrir la kubectl pour vérifier que votre instance est bien crée
 ```
 kubectl get ns vanessakovalsky
 ```
-* Returns something like:
+* Renvoit quelque chose comme :
 ```
 NAME           STATUS   AGE
 vanessakovalsky   Active   3m52s
 ```
 
-## Adding a deployment resource to our cluster
-* We are going to add a deployment in the kubernetes sense, to do this add the following resource to the k8s.tf file:
+## Ajout d'une ressource deploiement à notre cluster
+
+* Nous allons ajouter un déploiement au sens kubernetes, pour cela ajouter dans le fichier k8s.tf la ressource suivante :
 ```
 resource "kubernetes_deployment" "nginx" {
-metadata {    name = "terraform-example"
+  metadata {
+    name = "terraform-example"
     labels = {
       app = "MyExampleApp"
     }
@@ -188,7 +199,8 @@ metadata {    name = "terraform-example"
     }
 
     template {
-metadata {        labels = {
+      metadata {
+        labels = {
           app = "MyExampleApp"
         }
       }
@@ -214,14 +226,16 @@ metadata {        labels = {
   }
 }
 ```
-* Here we have added a deployment in the Kubernetes sense.
-* This will launch two replicas of a pod containing nginx
-* Our pods will host a working nginx but it is not accessible since no service is associated with this pod.
-* To be able to access this one, we must add a service
-* Add to your k8s.tf file above your instance resource the resource below
+* Ici nous avons ajouter un déploiement au sens Kubernetes. 
+* Celui-ci lancera deux replicas d'un pod contenant nginx
+
+* Nos pods hebergeront un nginx fonctionnel mais il n'est pas accessible puisqu'aucun service n'est associé à ce pod.
+* Pour pouvoir accéder à celle-ci, nous devons ajouter un service
+* Ajouter a votre fichier k8s.tf au dessus de votre ressource instance la ressource ci-dessous
 ```
 resource "kubernetes_service" "nginxsvc" {
-metadata {    name = "terraform-example-svc"
+  metadata {
+    name = "terraform-example-svc"
     namespace = "vanessakovalsky"
   }
   spec {
@@ -238,26 +252,23 @@ metadata {    name = "terraform-example-svc"
   }
 }
 ```
-* We can now deploy our service and deployment:
+* Nous pouvons maintenant déployer notre service et notre deploiement :
 ```
 terraform init && terraform apply
 ```
-* Which will give a result similar to:
+* Qui donnera un résultat similaire à :
 ```
 @TOCOPY
 ```
-* Check now via kubectl that your deployment and your service are well created
-* Then launch minikube tunnel and access your web page on the address provided by minikube 
-  * On linux use: `minikube service terraform-example-svc -n vanessakovalsky --url` 
-  * On windows use : `kubectl port-forward service/terraform-example-svc -n yournamespace 54200:8080 and then you can access to your nginx on 127.0.0.1:54200` 
-  * /!\ In both case let this process and minikube tunnel run in two windows for accessing to your app 
+* Vérifier maintenant via kubectl que votre deploiement et votre service sont bien créé
+* Puis lancer minikube tunnel et accéder à votre page web sur l'adresse fournit par minikube (si besoin pour recuperer l'URL : `minikube service terraform-example-svc -n vanessakovalsky --url` )
 
-## Delete resource
-* The exercises being finished, we are going to delete the resources with the command
+## Suppression de la ressource
+* Les exercices étant terminer, nous allons supprimer les ressources avec la commande 
 ```
 terraform destroy
 ```
-* Which will give a result similar to:
+* Qui donnera un résultat similaire à :
 ```
 @TOCOPY
 ```
