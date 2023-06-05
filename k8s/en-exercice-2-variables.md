@@ -1,7 +1,9 @@
 # Exercise 2 - Input and output variables
 
 ## Goals
-This exercise aims to:* Create and use input variables* Create and use output variables
+This exercise aims to:
+* Create and use input variables
+* Create and use output variables
 
 ## Input Variables
 
@@ -55,7 +57,8 @@ output "port" {
   * image: identifier and version of the image to use
   * port: port to expose in the service* In the k8s.tf file, replace hard values with a call to its variables
 * Create a terraform.tfvars file which will contain the key/value pairs of our variables
-* Define an output variable that returns the IP address of the node port* Apply your changes with the command `terraform init &amp;&amp; terraform apply`
+* Define an output variable that returns the IP address of the node port
+* Apply your changes with the command `terraform init &amp;&amp; terraform apply`
 * Use the returned IP address to check if your deployment is still working
 * Then check the application of your variables is correct with kubectl
 
