@@ -36,7 +36,8 @@ provider "kubernetes" {
 * Add the following code to your k8s.tf file:
 ```
 resource "kubernetes_namespace" "vanessakovalsky" {
-metadata {        name = "vanessakovalsky"
+  metadata {
+      name = "vanessakovalsky"
     }
 }
 ```
