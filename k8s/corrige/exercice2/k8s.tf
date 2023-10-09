@@ -79,7 +79,7 @@ resource "kubernetes_service" "nginxsvc" {
       target_port = "${var.port}"
     }
 
-    type = "LoadBalancer"
+    type = "NodePort"
   }
 }
 
