@@ -20,15 +20,16 @@ data "<DATA_SOURCE_NAME>" "<NAME>" {
 * In our example, we could for example ask Terraform to go and retrieve the information on the nginx pod
 * To define our data source we can now in our terraform code, ask it to retrieve pod information:
 ```
-data "kubernetes_pod" "podnginx" {
-  metadata {    
-    name = "terraform-example"  
-  }
+data "azurerm_platform_image" "search" {
+  location  = "West Europe"
+  publisher = "canonical"
+  offer     = "0001-com-ubuntu-minimal-jammy"
+  sku       = "minimal-22_04-lts-ARM"
 }
 
 
 ```
-* You then retrieve the information on the podnginx
+* You then retrieve the information on image you want to use for create your VM instance
 
 ## Use data from a data source
 
@@ -36,16 +37,14 @@ data "kubernetes_pod" "podnginx" {
 ```
 data.<DATA_SOURCE_NAME.≶NAME>.<ATTRIBUTE>
 ```
-* The list of retrievable attributes is also available in the [official documentation](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/data-sources/pod#spec)
-* Here we retrieve the list of configmaps via our data source:
+* The list of retrievable attributes is also available in the [official documentation]([https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/data-sources/pod#spec](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/platform_image#attributes-reference))
+* Here we retrieve the id of image via our data source:
 ```
-data "kubernetes_config_map" "example" {
-  metadata {    
-    name = "my-config"
-  }
+output "image" {
+  value = data.azurerm_platform_image.search.id
 }
 ```
-* Then we use the configmap in our deployment
+* Then we use the image id in our resource vm instance
 ```
 resource "kubernetes_deployment" "nginx" {
   metadata {    name = "terraform-example"
