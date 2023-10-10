@@ -96,7 +96,8 @@ resource "kubernetes_deployment" "nginx" {
   }
 }
 ```
-* You must then create the configmap my-config either with kubectl or by adding the resource to the terraform files* To apply our modification, use the command: `terraform init &amp;&amp; terraform apply`
+* You must then create the configmap my-config either with kubectl or by adding the resource to the terraform files `kubectl create configmap --from-literal=my-config=myparamvalue -n yournamespacename` (please change yournamespacename to whatever you define as namespace name in value from terraform)
+* To apply our modification, use the command: `terraform init &amp;&amp; terraform apply`
 * Then return to verify with kubectl
 
 ## Delete resource
