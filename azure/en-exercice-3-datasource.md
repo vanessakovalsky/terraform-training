@@ -38,61 +38,35 @@ data "azurerm_platform_image" "search" {
 data.<DATA_SOURCE_NAME.≶NAME>.<ATTRIBUTE>
 ```
 * The list of retrievable attributes is also available in the [official documentation]([https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/data-sources/pod#spec](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/platform_image#attributes-reference))
-* Here we retrieve the id of image via our data source:
+* Here we retrieve the id of image via our data source :
 ```
 output "image" {
   value = data.azurerm_platform_image.search.id
 }
 ```
-* Then we use the image id in our resource vm instance
+* Then we use the image id in our resource vm instance, just replace source_image_reference with source_image_id as below
 ```
-resource "kubernetes_deployment" "nginx" {
-  metadata {    name = "terraform-example"
-    labels = {
-      app = "MyExampleApp"
-    }
-    namespace = "vanessakovalsky"
+resource "azurerm_linux_virtual_machine" "example" {
+  name                = "example-machine"
+  resource_group_name = azurerm_resource_group.example.name
+  location            = azurerm_resource_group.example.location
+  size                = "Standard_F2"
+  admin_username      = "adminuser"
+  network_interface_ids = [
+    azurerm_network_interface.example.id,
+  ]
+
+  admin_ssh_key {
+    username   = "adminuser"
+    public_key = file("~/.ssh/id_rsa.pub")
   }
 
-  spec {
-    replicas = 2
-
-    selector {
-      match_labels = {
-        app = "MyExampleApp"
-      }
-    }
-
-    template {
-  metadata {        labels = {
-          app = "MyExampleApp"
-        }
-      }
-
-      spec {
-        container {
-          image = "nginx:1.21.6"
-          name  = "example"
-
-          resources {
-            limits = {
-              cpu    = "0.5"
-              memory = "512Mi"
-            }
-            requests = {
-              cpu    = "250m"
-              memory = "50Mi"
-            }
-          }
-          env_from {
-            config_map_ref {
-                name = data.kubernetes_config_map.kubernetes_config_map.my-config
-            }
-          }
-        }
-      }
-    }
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
   }
+
+  source_image_id = data.azurerm_platform_image.search.id
 }
 ```
 * You must then create the configmap my-config either with kubectl or by adding the resource to the terraform files* To apply our modification, use the command: `terraform init &amp;&amp; terraform apply`
