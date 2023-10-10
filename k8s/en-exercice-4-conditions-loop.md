@@ -8,6 +8,8 @@ This exercise aims to:
 
 ## Conditions
 
+
+
 * We will make some items conditional, i.e. some information will be specific to some parameters, or some resources will only be created when the conditions are met
 * For this: add an env variable with a default value to dev
 * In the code for creating our resources, set the type of service to ClusterIp if we are in a dev environment, and to NodePort if the value of `env` is `prod`
@@ -15,16 +17,7 @@ This exercise aims to:
     type = var.environment == "prod" ? "NodePort" : "ClusterIP"
 ```
 
-
-## Loop
-
-* Add a user variable of type list which contains a list of users
-* Add a variable of type password which contains a list of passwords
-* In the secret config map, add a loop which for each user will add data in the form: user:base64encode(password)
-* Then redeploy and try to connect with the different users in your list on your nginx site
-
-
-## Bonus
+## Conditions and functions
 
 * Create a secret type resource with a base 64 encoded secret, using terraform functions.
 * If the environment is different from the `dev` value: add an HTTP Basic Auth to Nginx using the created secret.
@@ -38,3 +31,13 @@ This exercise aims to:
     nginx.ingress.kubernetes.io/auth-realm: "Enter your credentials"
     ```
     * You can now redeploy and attempt to access your nginx which should prompt you for a username and password
+
+
+## Loop
+
+* Add a user variable of type list which contains a list of users
+* Add a variable of type password which contains a list of passwords
+* In the secret config map, add a loop which for each user will add data in the form: user:base64encode(password)
+* Then redeploy and try to connect with the different users in your list on your nginx site
+
+
