@@ -22,9 +22,9 @@ data "<DATA_SOURCE_NAME>" "<NAME>" {
 ```
 data "azurerm_platform_image" "search" {
   location  = "West Europe"
-  publisher = "canonical"
-  offer     = "0001-com-ubuntu-minimal-jammy"
-  sku       = "minimal-22_04-lts-ARM"
+  publisher = "Canonical"
+  offer     = "0001-com-ubuntu-server-jammy"
+  sku       = "22_04-lts"
 }
 
 
