@@ -113,7 +113,7 @@ resource "kubernetes_manifest" "deployment_wordpress" {
                   }
                 },
               ]
-              "image" = "wordpress:4.8-apache"
+              "image" = "wordpress:5.8-apache"
               "name" = "wordpress"
               "ports" = [
                 {

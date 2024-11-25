@@ -120,15 +120,11 @@ Terraform used the selected providers to generate the following execution plan. 
 
 Terraform will perform the following actions:
 
-  # kubernetes_namespace.vanessakovalsky will be created
-  + resource "kubernetes_namespace" "vanessakovalsky" {
-      + id = (known after apply)
-
-+ metadata {          + generation       = (known after apply)
-          + name             = "vanessakovalsky"
-          + resource_version = (known after apply)
-          + uid              = (known after apply)
-        }
+# azurerm_resource_group.example will be created
+  + resource "azurerm_resource_group" "example" {
+      + id       = (known after apply)
+      + location = "westeurope"
+      + name     = "myressourcegroupe"
     }
 
 Plan: 1 to add, 0 to change, 0 to destroy.
@@ -139,102 +135,77 @@ Do you want to perform these actions?
 
   Enter a value: yes
 
-kubernetes_namespace.vanessakovalsky: Creating...
-kubernetes_namespace.vanessakovalsky: Creation complete after 0s [id=vanessakovalsky]
+azurerm_resource_group.example: Creating...
+azurerm_resource_group.example: Creation complete after 0s [id=/subscriptions/78b9a3d9-a777-4dad-8f72-5fc24f431d13/resourceGroups/myressourcegroupe]
 
 Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
-
-
-# vanessakovalsky namespace created
-❯❯ kubectl get ns
-NAME              STATUS   AGE
-default           Active   6d4h
-kube-node-lease   Active   6d4h
-be public Active 6d4hbe system Active 6d4hvanessakovalsky   Active   22s
 ```
 
 ## Deployment verification
-* You can use kubectl to verify that your namespace is created
-```
-kubectl get ns vanessakovalsky
-```
-* Returns something like:
-```
-NAME           STATUS   AGE
-vanessakovalsky   Active   3m52s
-```
+* You can use Azure Portal to verify that your resource group is created
+* Just connect to https://portal.azure.com/ 
+* Go to ressources Groups and check if your new one is present
 
-## Adding a deployment resource to our cluster
-* We are going to add a deployment in the kubernetes sense, to do this add the following resource to the k8s.tf file:
+## Adding a deployment resource to our terraform file
+* We are going to add a virtual machine as resource, to do this add the following resource to the main.tf file:
 ```
-resource "kubernetes_deployment" "nginx" {
-metadata {    name = "terraform-example"
-    labels = {
-      app = "MyExampleApp"
-    }
-    namespace = "vanessakovalsky"
+resource "azurerm_virtual_network" "example" {
+  name                = "example-network"
+  address_space       = ["10.0.0.0/16"]
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+}
+
+resource "azurerm_subnet" "example" {
+  name                 = "internal"
+  resource_group_name  = azurerm_resource_group.example.name
+  virtual_network_name = azurerm_virtual_network.example.name
+  address_prefixes     = ["10.0.2.0/24"]
+}
+
+resource "azurerm_network_interface" "example" {
+  name                = "example-nic"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.example.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+
+resource "azurerm_linux_virtual_machine" "example" {
+  name                = "example-machine"
+  resource_group_name = azurerm_resource_group.example.name
+  location            = azurerm_resource_group.example.location
+  size                = "Standard_F2"
+  admin_username      = "adminuser"
+  network_interface_ids = [
+    azurerm_network_interface.example.id,
+  ]
+
+  admin_ssh_key {
+    username   = "adminuser"
+    public_key = file("~/.ssh/id_rsa.pub")
   }
 
-  spec {
-    replicas = 2
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
 
-    selector {
-      match_labels = {
-        app = "MyExampleApp"
-      }
-    }
-
-    template {
-metadata {        labels = {
-          app = "MyExampleApp"
-        }
-      }
-
-      spec {
-        container {
-          image = "nginx:1.21.6"
-          name  = "example"
-
-          resources {
-            limits = {
-              cpu    = "0.5"
-              memory = "512Mi"
-            }
-            requests = {
-              cpu    = "250m"
-              memory = "50Mi"
-            }
-          }
-        }
-      }
-    }
+  source_image_reference {
+   publisher = "West Europe"
+   offer = "Canonical"
+   sku = "0001-com-ubuntu-server-jammy"
+   version = "22_04-lts"
   }
 }
 ```
-* Here we have added a deployment in the Kubernetes sense.
-* This will launch two replicas of a pod containing nginx
-* Our pods will host a working nginx but it is not accessible since no service is associated with this pod.
-* To be able to access this one, we must add a service
-* Add to your k8s.tf file above your instance resource the resource below
-```
-resource "kubernetes_service" "nginxsvc" {
-metadata {    name = "terraform-example-svc"
-    namespace = "vanessakovalsky"
-  }
-  spec {
-    selector = {
-      app = kubernetes_deployment.nginx.metadata.0.labels.app
-    }
-    session_affinity = "ClientIP"
-    port {
-      port        = 8080
-      target_port = 80
-    }
-
-    type = "LoadBalancer"
-  }
-}
-```
+* Here we have added a linux virtual machine, and all its dependencies (virtual network, subnet and network interface)
+* This will launch a linux virtual machine with Ubuntu and all other resources needed
+* Assure that you get an ssh public key in path specified on line `public_key = file("~/.ssh/id_rsa.pub")`, if not change path or generate an ssh key
 * We can now deploy our service and deployment:
 ```
 terraform init && terraform apply
@@ -243,8 +214,7 @@ terraform init && terraform apply
 ```
 @TOCOPY
 ```
-* Check now via kubectl that your deployment and your service are well created
-* Then launch minikube tunnel and access your web page on the address provided by minikube (if necessary to retrieve the URL: `minikube service terraform-example-svc -n vanessakovalsky --url` )
+* Check now via Azure portal than your virtual machine is launched, and you can access it with your ssh key. 
 
 ## Delete resource
 * The exercises being finished, we are going to delete the resources with the command

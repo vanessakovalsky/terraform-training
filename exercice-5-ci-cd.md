@@ -1,4 +1,4 @@
-# Exercice 5 - Déployer automatiquement avec Terraform depuis une chaine de CI/D
+# Exercice 5 - Déployer automatiquement avec Terraform depuis une chaine de CI/CD
 
 ## Objectifs
 

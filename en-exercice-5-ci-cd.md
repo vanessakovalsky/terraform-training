@@ -1,4 +1,4 @@
-# Exercise 5 - Deploy automatically with Terraform from a CI/D chain
+# Exercise 5 - Deploy automatically with Terraform from a CI/CD chain
 
 ## Goals
 This exercise aims to:
