@@ -27,6 +27,8 @@ cd devstack
 source openrc
 ```
 - Une fois ces commandes passé et toujours dans la VM, ouvrir un navigateur et tapez : http://127.0.0.1/dashboard -> vous devez arrivé sur la page de connexion d'Openstack
+  * Utilisateur par défaut : admin
+  * Mot de passe : superpassword
   
 ## Installation de Terraform
 
