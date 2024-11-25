@@ -8,7 +8,7 @@
 ## Pré-requis
 
 - Avoir virtualBox installé sur la machine à utiliser
-- Télécharger l'image qui se trouve ici :
+- Télécharger l'image qui se trouve ici : https://www.grosfichiers.com/HuquECmjYpC
 - Avoir une machine avec au moins 16GO de RAM et 8 CPU (la VM va en utiliser la moitié) et 20 GO de disque dur disponible
 
 ## Lancement de la VM OpenStack
