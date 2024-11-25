@@ -40,24 +40,24 @@ resource "openstack_compute_instance_v2" "terraform-demo-instance" {
 * Les variables sont composées d'un nom, d'un type, d'une valeur par défaut et d'une description. Seul le nom est obligatoire.
 * Pour déclarer une variable on utilise un bloc de type `variable` et son label est alors le nom de notre variable
 ```
-variable "AWS_REGION" {
+variable "OPENSTACK_REGION" {
     type = "string"
-    default = "us-east-2"
-    description = "Région de notre instance ec2"
+    default = "RegionOne"
+    description = "Région de notre instance"
 }
 ```
 
 ### Accéder à une variable d'entrée
 * Pour accéder à une variable on peut utilisé la variable en préfixant son nom du mot-clé `var.`
 ```
-provider "aws" {
-    region = var.AWS_REGION
+provider "openstack" {
+    region = var.OPENSTACK_REGION
 }
 ```
-* Une autre syntaxe est possible en entourant le nom `var.AWS_REGION` d'accolades et en les faisant précéder d'un symbole $. Cette deuxième syntaxe est obligatoire si vous devez concaténer la valeur de plusieurs variables:
+* Une autre syntaxe est possible en entourant le nom `var.OPENSTACK_REGION` d'accolades et en les faisant précéder d'un symbole $. Cette deuxième syntaxe est obligatoire si vous devez concaténer la valeur de plusieurs variables:
 ```
-provider "aws" {
-    region = "${var.AWS_REGION}"
+provider "openstack" {
+    region = "${var.OPENSTACK_REGION}"
 }
 ```
 
@@ -65,7 +65,7 @@ provider "aws" {
 
 * Il est possible de définir la valeur d'une variable de différentes manières :
     * en utilisant l'option -var 'NOMDELABARIABLE=valeur' lors de la commande terraform apply
-    * en utilisant un fichier (celui ci aura alors l'extenations .tfvars) et en appelant ce fichier avec la commande `terraform apply -var-file="aws-access.tfvars`
+    * en utilisant un fichier (celui ci aura alors l'extenations .tfvars) et en appelant ce fichier avec la commande `terraform apply -var-file="openstack-access.tfvars`
     * en utilisant le mode interractif, si les variables ne sont pas spécifiées, terraform vous demande alors de saisir les valeurs de manière interractive. /!\ Dans ce cas là les valeurs ne sont pas enregistrées.
 
 ## Output Variables 
@@ -74,24 +74,23 @@ provider "aws" {
 * On utilise alors un bloc de type `output` et on définit ce qui doit être contenu dans cette variables. Les valeurs possibles dépendent alors de la ressource créé
 ```
 output "public_ip" {
-    value = aws_instance.my_ec2_instance.public_ip
+    value = openstack_compute_instance_v2.terraform-demo-instance.access_ip_v4
 }
 ```
 
 ## Exercice d'application sur notre projet :
 
 * Créer un fichier vars.tf qui contiendra la définition des 5 variables suivantes : 
-    * AWS ACCESS KEY
-    * AWS SECRET KEY
-    * AWS REGIONS
-    * AWS AMI 
-    * Chemin vers la clé SSH publique qui doit être déployée sur l'instance
+    * Opensack username
+    * Openstack password
+    * Openstack region
+    * Openstack keyname
 * Dans le fichier main.tf, remplacer les valeurs en dur par un appel à ses variables et ajouter la clé SSH
 * Créer un fichier terraform.tfvars qui contiendra les pairs clé/valeurs de nos variables
-* Définir une variable de sortie qui renvoit l'adresse IP de l'instance EC2 
+* Définir une variable de sortie qui renvoit l'adresse IP de l'instance
 * Appliquer vos modifications avec la commande `terraform init && terraform apply`
 * Utiliser l'adresse IP retourné pour vérifier si votre déploiement fonctionne toujours
-* Vérifier alors l'applications de vos variables est correcte dans la console Web AWS
+* Vérifier alors l'applications de vos variables est correcte dans la console Web 
 * Essayer de vous connecter sur votre instance avec la clé ssh privé que vous avez généré à l'étape de configuration
 
 ## Créer une Data source
