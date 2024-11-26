@@ -236,7 +236,7 @@ aws_instance.my_ec2_instance: Modifications complete after 9s [id=i-0b25fb9f0b17
 * Puis retrouver votre instance, et ouvrez son adresse IP, une page avec le message "Hello students" devrait s'afficher
 
 ## Suppression de la ressource
-* Les exercices étant terminer, nous allon supprimer les ressources avec la commande 
+* Les exercices étant terminer, nous allons supprimer les ressources avec la commande 
 ```
 terraform destroy
 ```
