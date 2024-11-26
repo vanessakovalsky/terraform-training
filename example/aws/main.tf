@@ -5,10 +5,14 @@ terraform {
       version = "~> 5.0"
     }
   }
+  backend "s3" {
+    bucket = "my-s3-bucket-bis"
+    region = "eu-west-3"
+    key= "./terraform.tfstate"
+  }
 }
 
 provider "aws"  {
-
     region = "eu-west-3"
 }
 
