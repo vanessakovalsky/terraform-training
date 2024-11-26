@@ -12,27 +12,25 @@ provider "aws"  {
     region = "eu-west-3"
 }
 
-variable "nom-instance" {
-    type=string
-    description="Nom de l'instance"
+module "s3_bucket" {
+  source = "terraform-aws-modules/s3-bucket/aws"
+
+  bucket = "my-s3-bucket-bis"
+  acl    = "private"
+
+  control_object_ownership = true
+  object_ownership         = "ObjectWriter"
+
+  versioning = {
+    enabled = true
+  }
 }
 
-variable "secret" {
-    type=string
-    description="mon super secret"
-    sensitive = true
-}
+module "monsupermodule" {
+  # l'endroit dans lequel se trouve mon module (local ou distant)
+  source = "./monmodule"
 
-resource "aws_s3_bucket" "example" {
-    bucket = var.nom-instance
-    tags = {
-        Name        = "My bucket"
-        Environment = "Dev"
-        Secret = var.secret
-    }
-}
-
-output "arn_bucket_demo"{
-    description = "Valeur de l'ARN du bucket créé par terraform"
-    value= aws_s3_bucket.example.arn 
+  # les valeurs des variables que le module attends 
+  KEY_NAME = "masupercledemonmodule"
+  SSH_PUB_KEY = var.SSH_PUB_KEY
 }

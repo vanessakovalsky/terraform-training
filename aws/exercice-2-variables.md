@@ -14,7 +14,7 @@ Cet exercice a pour objectifs :
 * Pour déclarer une variable on utilise un bloc de type `variable` et son label est alors le nom de notre variable
 ```
 variable "AWS_REGION" {
-    type = "string"
+    type = string
     default = "us-east-2"
     description = "Région de notre instance ec2"
 }
