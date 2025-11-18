@@ -1,76 +1,203 @@
-# Exercice 2 - Les variables input et output
+# Exercice 2 --- Utiliser les variables avec Terraform et Azure
 
 ## Objectifs
 
-Cet exercice a pour objectifs : 
-* De créer et d'utiliser des variables d'entrées
-* De créer et d'utiliser des variables de sorties
+-   Comprendre le rôle des variables dans Terraform\
+-   Déclarer des variables dans `variables.tf`\
+-   Utiliser des fichiers `.tfvars`\
+-   Manipuler des variables sensibles\
+-   Implémenter les variables dans un déploiement Azure
 
+## Pré-requis
 
-## Input Variables
+-   Terraform installé\
+-   Azure CLI configuré (`az login`)\
+-   Un abonnement Azure\
+-   Un projet Terraform initial (provider + première ressource)
 
-### Déclarer une variable d'entrée
-* Les variables sont composées d'un nom, d'un type, d'une valeur par défaut et d'une description. Seul le nom est obligatoire.
-* Pour déclarer une variable on utilise un bloc de type `variable` et son label est alors le nom de notre variable
-```
-variable "name" {
+## 1. Déclarer des variables
+
+Créez un fichier **variables.tf** :
+
+``` hcl
+variable "resource_group_name" {
+  description = "Nom du groupe de ressources Azure"
   type        = string
-  description = "Name of the deployment"
+  default     = "demo-rg"
+}
+
+variable "location" {
+  description = "Région Azure pour les ressources"
+  type        = string
+  default     = "West Europe"
+}
+
+variable "vm_size" {
+  description = "Taille de la machine virtuelle Azure"
+  type        = string
+  default     = "Standard_F2"
+}
+
+variable "admin_username" {
+  description = "Nom d'utilisateur administrateur de la VM"
+  type        = string
+}
+
+variable "admin_password" {
+  description = "Mot de passe administrateur de la VM"
+  type        = string
+  sensitive   = true
+}
+
+variable "ssh_public_key_path" {
+  description = "Chemin vers la clé SSH publique"
+  type        = string
+  default     = "~/.ssh/id_rsa.pub"
 }
 ```
 
-### Accéder à une variable d'entrée
-* Pour accéder à une variable on peut utilisé la variable en préfixant son nom du mot-clé `var.`
-```
-resource "kubernetes_deployment" "nginx" {
-  metadata {
-    name = var.name
-...
-```
-* Une autre syntaxe est possible en entourant le nom `var.name` d'accolades et en les faisant précéder d'un symbole $. Cette deuxième syntaxe est obligatoire si vous devez concaténer la valeur de plusieurs variables:
-```
-resource "kubernetes_deployment" "nginx" {
-  metadata {
-    name = "${var.name}"
-...
+## 2. Fournir des valeurs via des fichiers `.tfvars`
+
+Créez un fichier **terraform.tfvars** :
+
+``` hcl
+resource_group_name = "prod-resources"
+location            = "North Europe"
+vm_size             = "Standard_D2s_v3"
+admin_username      = "azureadmin"
+ssh_public_key_path = "/home/user/.ssh/id_rsa.pub"
 ```
 
-### Définir la valeur d'une variable
+Pour les valeurs sensibles, utilisez un fichier séparé, par exemple
+**secrets.auto.tfvars** :
 
-* Il est possible de définir la valeur d'une variable de différentes manières :
-    * en utilisant l'option -var 'NOMDELABARIABLE=valeur' lors de la commande terraform apply
-    * en utilisant un fichier (celui ci aura alors l'extenations .tfvars) et en appelant ce fichier avec la commande `terraform apply -var-file="k8s.tfvars`
-    * en utilisant le mode interractif, si les variables ne sont pas spécifiées, terraform vous demande alors de saisir les valeurs de manière interractive. /!\ Dans ce cas là les valeurs ne sont pas enregistrées.
-
-## Output Variables 
-
-* Les variables de sorties permettent de récupérérer des informations sur son infrastructure comme un identifiant ou une adresse IP par exemple.
-* On utilise alors un bloc de type `output` et on définit ce qui doit être contenu dans cette variables. Les valeurs possibles dépendent alors de la ressource créé
+``` hcl
+admin_password = "MotDePasseTrèsSécurisé123!"
 ```
-output "port" {
-  value = "${kubernetes_service.nginxsvc.spec.0.port.0.port}"
+
+## 3. Utiliser les variables dans `main.tf`
+
+``` hcl
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 3.0"
+    }
+  }
+}
+
+provider "azurerm" {
+  features {}
+}
+
+resource "azurerm_resource_group" "rg" {
+  name     = var.resource_group_name
+  location = var.location
+}
+
+resource "azurerm_virtual_network" "example" {
+  name                = "example-network"
+  address_space       = ["10.0.0.0/16"]
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
+}
+
+resource "azurerm_subnet" "example" {
+  name                 = "internal"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.example.name
+  address_prefixes     = ["10.0.2.0/24"]
+}
+
+resource "azurerm_network_interface" "example" {
+  name                = "example-nic"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.example.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+
+resource "azurerm_linux_virtual_machine" "example" {
+  name                = "example-machine"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = var.location
+  size                = var.vm_size
+  admin_username      = var.admin_username
+  admin_password      = var.admin_password
+
+  network_interface_ids = [
+    azurerm_network_interface.example.id,
+  ]
+
+  admin_ssh_key {
+    username   = var.admin_username
+    public_key = file(var.ssh_public_key_path)
+  }
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "22_04-lts"
+    version   = "latest"
+  }
 }
 ```
 
-## Exercice d'application sur notre projet :
+## 4. Validation et contraintes de variables
 
-* Créer un fichier vars.tf qui contiendra la définition des 5 variables suivantes : 
-    * name : nom du déploiement
-    * app_name : nom de l'application
-    * namespace : nom du namespace à créer et à utiliser
-    * image : identifiant et version de l'image à utiliser
-    * port : port à exposer dans le service
-* Dans le fichier k8s.tf, remplacer les valeurs en dur par un appel à ses variables 
-* Créer un fichier terraform.tfvars qui contiendra les pairs clé/valeurs de nos variables
+``` hcl
+variable "location" {
+  description = "Région Azure pour les ressources"
+  type        = string
+  default     = "West Europe"
 
-* Définir une variable de sortie qui renvoit l'adresse IP du node port 
-* Appliquer vos modifications avec la commande `terraform init && terraform apply`
-* Utiliser l'adresse IP retourné pour vérifier si votre déploiement fonctionne toujours
-* Vérifier alors l'applications de vos variables est correcte dans kubectl
-
-
-## Suppression de la ressource
-* Les exercices étant terminer, nous allon supprimer les ressources avec la commande 
+  validation {
+    condition     = contains(["West Europe", "North Europe", "East US"], var.location)
+    error_message = "La région doit être West Europe, North Europe ou East US."
+  }
+}
 ```
-terraform destroy
-```
+
+## 5. Ordre de priorité des variables
+
+1.  `terraform apply -var="name=value"`\
+2.  `-var-file="fichier.tfvars"`\
+3.  Fichiers auto-chargés (`*.auto.tfvars`)\
+4.  Variables d'environnement (`TF_VAR_<nom>`)\
+5.  Valeurs par défaut dans `variables.tf`
+
+## 6. Exercices pratiques
+
+### Exercice 1
+
+Créer un fichier `dev.tfvars` avec un resource group nommé
+`dev-demo-rg`.
+
+### Exercice 2
+
+Ajouter une variable `tags` de type `map(string)` et l'utiliser dans
+toutes les ressources Azure.
+
+### Exercice 3
+
+Déclarer une variable sensible `admin_password` sans valeur par défaut,
+puis la passer via :
+
+    export TF_VAR_admin_password="Passw0rd!"
+
+### Exercice 4
+
+Créer deux environnements :
+
+    terraform apply -var-file=dev.tfvars
+    terraform apply -var-file=prod.tfvars
